@@ -34,35 +34,41 @@ namespace PrintSpoolerWPF.PrintManagement.Utilities
             {
                 PrintSystemJobInfo job = e.JobInfo;
 
+                if (job == null)
+                {
+                    
+                    return;
+                }
+
+                window.UpdatePrintInfoList(e);
+
                 JOBSTATUS JobStatus = e.JobStatus;
 
-                if (job == null) return;
-
-                window.UpdatePrintInfoList(job, e);
-
-                if (job.IsSpooling)
+                if (JobStatus == JOBSTATUS.JOB_STATUS_SPOOLING)
                 {
                     job.Pause();
                     //job.HostingPrintQueue.Pause();
                 }
-                else if (job.IsPaused)
+                else if (JobStatus == JOBSTATUS.JOB_STATUS_PAUSED)
                 {
-                    //job.HostingPrintQueue.Resume();
-
                     RefreshPrintQueue(job);
 
                     if (JobDetails(printer, e.JobID))
                     {
                         job.Resume();
+                        job.HostingPrintQueue.Dispose();
                     }
                     else
                     {
-                        DeletePrintJob(e.JobID);
+                        job.Cancel();
+                        job.HostingPrintQueue.Commit();
+                        //DeletePrintJob(e.JobID);
                     }
                 }
-                else if(job.IsCompleted)
+                else if (JobStatus == JOBSTATUS.JOB_STATUS_PRINTED)
                 {
-                    DeletePrintJob(e.JobID);
+                    //MessageBox.Show("Complete");
+                    //DeletePrintJob(e.JobID);
                 }
             }
             catch (Exception ex)

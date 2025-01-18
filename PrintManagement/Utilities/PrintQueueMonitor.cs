@@ -246,10 +246,5 @@ namespace PrintSpoolerWPF.PrintManagement.Utilities
         }
         #endregion
 
-        private int ConvertIntPtr(IntPtr intPtr)
-        {
-            return (Environment.Is64BitProcess) ? (int)intPtr.ToInt64() : (int)intPtr.ToInt32();
-        }
-
     }
 }
